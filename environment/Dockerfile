@@ -14,10 +14,10 @@ COPY git-askpass /
 
 ENV DOCDB_HOST=api.allenneuraldynamics.org
 ENV DOCDB_DATABASE=analysis
-ENV DOCDB_COLLECTION=architecture_example_v2
+ENV DOCDB_COLLECTION=dynamic-foraging-model-fitting
 ENV CODEOCEAN_DOMAIN=codeocean.allenneuraldynamics.org
-ENV CODEOCEAN_EMAIL=YOUR_EMAIL_HERE@alleninstitute.org
-ENV ANALYSIS_BUCKET=aind-scratch-data/analysis/architecture_example_v2
+ENV CODEOCEAN_EMAIL=han.hou@alleninstitute.org
+ENV ANALYSIS_BUCKET=aind-scratch-data/analysis/dynamic-foraging-model-fitting/
 
 RUN pip install -U --no-cache-dir \
     pydantic-settings==2.9.1 \
