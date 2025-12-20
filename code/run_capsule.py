@@ -10,8 +10,10 @@ from analysis_pipeline_utils.metadata import (construct_processing_record,
 from analysis_pipeline_utils.utils_analysis_wrapper import (
     get_analysis_model_parameters, make_cli_model)
 
-from example_analysis_model import (ExampleAnalysisOutputs,
-                                    ExampleAnalysisSpecification)
+from df_mle_model import (
+    DynamicForagingModelFittingOutputs,
+    DynamicForagingModelFittingSpecification,
+)
 
 ANALYSIS_BUCKET = os.getenv("ANALYSIS_BUCKET")
 logger = logging.getLogger(__name__)
@@ -57,11 +59,11 @@ def run_analysis(
     # OR
     #     subprocess.run(["--param_1": parameters["param_1"]])
 
-    processing.output_parameters = ExampleAnalysisOutputs(
+    processing.output_parameters = DynamicForagingModelFittingOutputs(
         isi_violations=["example_violation_1", "example_violation_2"],
         additional_info=(
             "This is an example of additional information about the analysis."
-        )[0],
+        ),
     )
 
     if not dry_run:
@@ -77,7 +79,7 @@ if __name__ == "__main__":
         level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
     )
 
-    cli_cls = make_cli_model(ExampleAnalysisSpecification)
+    cli_cls = make_cli_model(DynamicForagingModelFittingSpecification)
     cli_model = cli_cls()
     logger.info(f"Command line args {cli_model.model_dump()}")
     input_model_paths = tuple(cli_model.input_directory.glob("job_dict/*"))
@@ -93,13 +95,15 @@ if __name__ == "__main__":
         merged_parameters = get_analysis_model_parameters(
             analysis_dispatch_inputs,
             cli_model,
-            ExampleAnalysisSpecification,
+            DynamicForagingModelFittingSpecification,
             analysis_parameters_json_path=cli_model.input_directory
             / "analysis_parameters.json",
         )
-        analysis_specification = ExampleAnalysisSpecification.model_validate(
-            merged_parameters
-        ).model_dump()
+        analysis_specification = (
+            DynamicForagingModelFittingSpecification.model_validate(
+                merged_parameters
+            ).model_dump()
+        )
         logger.info(f"Running with analysis specs {analysis_specification}")
         run_analysis(
             analysis_dispatch_inputs,
