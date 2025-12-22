@@ -2,6 +2,7 @@ import json
 import logging
 import os
 from typing import Iterable, List, Optional, Sequence, Union
+import numpy as np
 
 from analysis_pipeline_utils.analysis_dispatch_model import \
     AnalysisDispatchModel
@@ -11,12 +12,14 @@ from analysis_pipeline_utils.metadata import (construct_processing_record,
 from analysis_pipeline_utils.utils_analysis_wrapper import (
     get_analysis_model_parameters, make_cli_model)
 
-from df_mle_model import (
+from dynamicforaging_mle_model import (
     DynamicForagingModelFittingOutputs,
     DynamicForagingModelFittingSpecification,
 )
-from s3_nwb_util import discover_nwb_files_s3, get_history_from_nwb
+
+from s3_nwb_util import discover_nwb_files_s3
 import aind_dynamic_foraging_data_utils.nwb_utils as nu
+from dynamicforaging_mle_wrapper import mle_wrapper
 
 ANALYSIS_BUCKET = os.getenv("ANALYSIS_BUCKET")
 logger = logging.getLogger(__name__)
@@ -44,47 +47,22 @@ def run_analysis(
         The analysis model parameters
 
     """
+    # --- Build processing record ---
     processing = construct_processing_record(
         analysis_dispatch_inputs, **parameters
     )
     if docdb_record_exists(processing):
         logger.info("Record already exists, skipping.")
         return
-
-    # Execute analysis and write to results folder using the passed parameters.
-    # Locate NWB files using s3fs under: {analysis_dispatch_inputs.s3_location}/nwb/*.nwb
-    nwb_uri = discover_nwb_files_s3(analysis_dispatch_inputs.s3_location)
     
-    if nwb_uri:
-        logger.info(f"Found NWB file to process: {nwb_uri}")
-        logger.info(f"Processing {nwb_uri}")
-        
-        nwb = nu.load_nwb_from_filename(nwb_uri)
-        (
-            baiting,
-            choice_history,
-            reward_history,
-            _,
-            autowater_offered,
-            random_number,
-        ) = get_history_from_nwb(nwb)        
-        
-    else:
-        logger.warning("No NWB file found, skipping processing.")
-
-    # NOTE: This repository is a template; replace this loop with your real NWB I/O.
-    # For example, for remote NWB you might use `pynwb.NWBHDF5IO` with a file-like
-    # object from s3fs, or download locally before reading.
-    # OR
-    #     subprocess.run(["--param_1": parameters["param_1"]])
-
-    processing.output_parameters = DynamicForagingModelFittingOutputs(
-        isi_violations=["example_violation_1", "example_violation_2"],
-        additional_info=(
-            "This is an example of additional information about the analysis."
-        ),
+    # --- Run analysis wrapper ---
+    output_parameters = mle_wrapper(
+        s3_location=analysis_dispatch_inputs.s3_location,
+        analysis_args=analysis_dispatch_inputs.distributed_parameters,
     )
+    processing.output_parameters = output_parameters
 
+    # --- Write results and metadata ---
     if not dry_run:
         logger.info("Running analysis and posting results")
         write_results_and_metadata(processing, ANALYSIS_BUCKET)
