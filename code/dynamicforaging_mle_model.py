@@ -58,7 +58,6 @@ class DynamicForagingModelFittingOutputs(GenericModel):
     """
     Represents the outputs of an analysis, including a list of ISI violations.
     """
-
     
     additional_info: Optional[str] = Field(
         default=None, description="Additional information about the analysis"

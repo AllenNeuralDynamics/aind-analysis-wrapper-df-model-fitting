@@ -1,4 +1,3 @@
-
 import logging
 import numpy as np
 
@@ -10,6 +9,7 @@ import aind_dynamic_foraging_data_utils.nwb_utils as nu
 from aind_dynamic_foraging_models.generative_model import ForagerCollection
 
 logger = logging.getLogger(__name__)
+RESULTS_FOLDER = "/results"
 
 def mle_wrapper(s3_location, analysis_args) -> DynamicForagingModelFittingOutputs:
     """
@@ -33,43 +33,57 @@ def mle_wrapper(s3_location, analysis_args) -> DynamicForagingModelFittingOutput
     if not nwb_uri:
         logger.warning("No NWB file found, skipping processing.")
         return
-    
+
     # -- Load NWB and extract choice and reward history --
     logger.info(f"Found NWB file to process: {nwb_uri}")
     logger.info(f"Processing {nwb_uri}")
-    
+
     df_trial = nu.create_df_trials(nwb_uri, adjust_time=False, verbose=False)
     choice_history = df_trial.animal_response.map({0: 0, 1: 1, 2: np.nan}).values
     reward_history = df_trial.rewarded_historyL | df_trial.rewarded_historyR
-    
+
     # Remove ignored trials
     ignored = np.isnan(choice_history)
     choice_history = choice_history[~ignored]
     reward_history = reward_history[~ignored].to_numpy()
-    
+
     # Skip if len(valid trials) < 50
     if len(choice_history) < 50:
-        return {
-            "status": "skipped. valid trials < 50",
-            "upload_figs_s3": {},
-            "upload_pkls_s3": {},
-            "upload_record_docDB": {},
-        }
+        return DynamicForagingModelFittingOutputs(
+            fitting_results={}, 
+            additional_info="skipped. valid trials < 50"
+        )
 
-    # Initialize model and fit
+    # -- Initialize model and fit --
     forager = ForagerCollection().get_forager(
         agent_class_name=analysis_args["agent_class"],
         agent_kwargs=analysis_args["agent_kwargs"],
-        )
+    )
     forager.fit(
         choice_history,
         reward_history,
         **analysis_args["fit_kwargs"],
         )
-        
+
+    # -- Saving results --
+    # Save figures
+    fig_fitting, _ = forager.plot_fitted_session(if_plot_latent=True)
+    fig_fitting.savefig(f"{RESULTS_FOLDER}/fitted_session.png", dpi=500)
+    logger.info(f"Saved fitting figure to {RESULTS_FOLDER}/fitted_session.png")
+    
+    # Save the forager object
+    # Have to flatten pydantic models in forager for pickle to work
+    forager.ParamModel = forager.ParamModel.model_json_schema()
+    forager.ParamFitBoundModel = forager.ParamFitBoundModel.schema_json()
+    forager.params = forager.params.model_dump()
+    with open(f"{RESULTS_FOLDER}/forager.pkl", "wb") as f:
+        pickle.dump(forager, f)
+    logger.info(f"Saved forager object to {RESULTS_FOLDER}/forager.pkl")    
+
+    # Database record
+    fitting_results = forager.get_fitting_result_dict()
+
     return DynamicForagingModelFittingOutputs(
-        isi_violations=["example_violation_1", "example_violation_2"],
-        additional_info=(
-            "This is an example of additional information about the analysis."
-        ),
+        fitting_results=fitting_results,
+        additional_info="success"
     )
