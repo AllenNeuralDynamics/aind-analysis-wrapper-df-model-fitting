@@ -17,7 +17,7 @@ ENV DOCDB_DATABASE=analysis
 ENV DOCDB_COLLECTION=dynamic-foraging-model-fitting
 ENV CODEOCEAN_DOMAIN=codeocean.allenneuraldynamics.org
 ENV CODEOCEAN_EMAIL=han.hou@alleninstitute.org
-ENV ANALYSIS_BUCKET=aind-analysis-prod-o5171v/dynamic-foraging-model-fitting/
+ENV ANALYSIS_BUCKET=aind-analysis-prod-o5171v/dynamic-foraging-model-fitting
 
 RUN pip install -U --no-cache-dir \
     pydantic-settings==2.9.1 \
