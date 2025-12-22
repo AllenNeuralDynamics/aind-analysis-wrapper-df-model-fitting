@@ -1,5 +1,6 @@
 
 import logging
+import numpy as np
 
 from dynamicforaging_mle_model import (
     DynamicForagingModelFittingOutputs,
