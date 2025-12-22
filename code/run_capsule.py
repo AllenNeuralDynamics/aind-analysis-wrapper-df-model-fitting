@@ -1,6 +1,7 @@
 import json
 import logging
 import os
+from typing import Iterable, List, Optional, Sequence, Union
 
 from analysis_pipeline_utils.analysis_dispatch_model import \
     AnalysisDispatchModel
@@ -14,6 +15,7 @@ from df_mle_model import (
     DynamicForagingModelFittingOutputs,
     DynamicForagingModelFittingSpecification,
 )
+from s3_nwb_util import discover_nwb_files_s3
 
 ANALYSIS_BUCKET = os.getenv("ANALYSIS_BUCKET")
 logger = logging.getLogger(__name__)
@@ -48,14 +50,22 @@ def run_analysis(
         logger.info("Record already exists, skipping.")
         return
 
-    # Execute analysis and write to results folder
-    # using the passed parameters
-    # Example:
-    # Use NWBZarrIO to reads
-    # for location in analysis_dispatch_inputs.file_location:
-    #     with NWBZarrIO(location, 'r') as io:
-    #         nwbfile = io.read()
-    #     run_your_analysis(nwbfile, **parameters)
+    # Execute analysis and write to results folder using the passed parameters.
+    # Locate NWB files using s3fs under: {analysis_dispatch_inputs.s3_location}/nwb/*.nwb
+    nwb_uri = discover_nwb_files_s3(analysis_dispatch_inputs.s3_location)
+    
+    if nwb_uri:
+        logger.info(f"Found NWB file to process: {nwb_uri}")
+        logger.info(f"Processing {nwb_uri}")
+        # TODO: implement analysis read + compute, writing outputs into /results
+        # nwbfile = ...
+        # run_your_analysis(nwbfile, **parameters)
+    else:
+        logger.warning("No NWB file found, skipping processing.")
+
+    # NOTE: This repository is a template; replace this loop with your real NWB I/O.
+    # For example, for remote NWB you might use `pynwb.NWBHDF5IO` with a file-like
+    # object from s3fs, or download locally before reading.
     # OR
     #     subprocess.run(["--param_1": parameters["param_1"]])
 
