@@ -4,8 +4,11 @@ import logging
 from dynamicforaging_mle_model import (
     DynamicForagingModelFittingOutputs,
 )
-
+from s3_nwb_util import discover_nwb_files_s3
+import aind_dynamic_foraging_data_utils.nwb_utils as nu
 from aind_dynamic_foraging_models.generative_model import ForagerCollection
+
+logger = logging.getLogger(__name__)
 
 def mle_wrapper(s3_location, analysis_args) -> DynamicForagingModelFittingOutputs:
     """

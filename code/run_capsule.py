@@ -17,8 +17,6 @@ from dynamicforaging_mle_model import (
     DynamicForagingModelFittingSpecification,
 )
 
-from s3_nwb_util import discover_nwb_files_s3
-import aind_dynamic_foraging_data_utils.nwb_utils as nu
 from dynamicforaging_mle_wrapper import mle_wrapper
 
 ANALYSIS_BUCKET = os.getenv("ANALYSIS_BUCKET")
