@@ -15,7 +15,8 @@ from df_mle_model import (
     DynamicForagingModelFittingOutputs,
     DynamicForagingModelFittingSpecification,
 )
-from s3_nwb_util import discover_nwb_files_s3
+from s3_nwb_util import discover_nwb_files_s3, get_history_from_nwb
+import aind_dynamic_foraging_data_utils.nwb_utils as nu
 
 ANALYSIS_BUCKET = os.getenv("ANALYSIS_BUCKET")
 logger = logging.getLogger(__name__)
@@ -57,9 +58,17 @@ def run_analysis(
     if nwb_uri:
         logger.info(f"Found NWB file to process: {nwb_uri}")
         logger.info(f"Processing {nwb_uri}")
-        # TODO: implement analysis read + compute, writing outputs into /results
-        # nwbfile = ...
-        # run_your_analysis(nwbfile, **parameters)
+        
+        nwb = nu.load_nwb_from_filename(nwb_uri)
+        (
+            baiting,
+            choice_history,
+            reward_history,
+            _,
+            autowater_offered,
+            random_number,
+        ) = get_history_from_nwb(nwb)        
+        
     else:
         logger.warning("No NWB file found, skipping processing.")
 
