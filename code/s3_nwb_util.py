@@ -1,5 +1,6 @@
 import logging
 from typing import Iterable, List, Optional, Sequence, Union
+import numpy as np
 
 logger = logging.getLogger(__name__)
 
