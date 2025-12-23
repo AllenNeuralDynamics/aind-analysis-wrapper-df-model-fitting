@@ -42,6 +42,13 @@ def mle_wrapper(s3_location, analysis_args) -> DynamicForagingModelFittingOutput
     df_trial = nu.create_df_trials(nwb_uri, adjust_time=False, verbose=False)
     choice_history = df_trial.animal_response.map({0: 0, 1: 1, 2: np.nan}).values
     reward_history = df_trial.rewarded_historyL | df_trial.rewarded_historyR
+    
+    # Additional metadata for result-access to directly query
+    # (ideally they should be added to the upper layer metadata)
+    nwb = nu.load_nwb_from_filename(nwb_uri)
+    subject_id = nwb.subject.subject_id
+    session_date = nwb.session_start_time.strftime("%Y-%m-%d")
+    nwb_name = nwb_uri.split("/")[-1]
 
     # Remove ignored trials
     ignored = np.isnan(choice_history)
@@ -51,6 +58,9 @@ def mle_wrapper(s3_location, analysis_args) -> DynamicForagingModelFittingOutput
     # Skip if len(valid trials) < 50
     if len(choice_history) < 50:
         return DynamicForagingModelFittingOutputs(
+            subject_id=subject_id, 
+            session_date=session_date,
+            nwb_name=nwb_name,
             fitting_results={}, 
             additional_info="skipped. valid trials < 50"
         )
@@ -85,6 +95,9 @@ def mle_wrapper(s3_location, analysis_args) -> DynamicForagingModelFittingOutput
     fitting_results = forager.get_fitting_result_dict()
 
     return DynamicForagingModelFittingOutputs(
+        subject_id=subject_id, 
+        session_date=session_date,
+        nwb_name=nwb_name,
         fitting_results=fitting_results,
-        additional_info="success"
+        additional_info="success",
     )

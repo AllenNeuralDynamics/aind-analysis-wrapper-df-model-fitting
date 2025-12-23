@@ -72,3 +72,14 @@ class DynamicForagingModelFittingOutputs(GenericModel):
         ),
     )
 
+    # Additional metadata for result-access to directly query
+    # (ideally they should be added to the upper layer metadata)
+    subject_id: Optional[str] = Field(
+        default=None, description="Subject identifier"
+    )
+    session_date: Optional[str] = Field(
+        default=None, description="Date of the session"
+    )
+    nwb_name: Optional[str] = Field(
+        default=None, description="NWB name"
+    )
