@@ -58,7 +58,7 @@ def run_analysis(
         s3_location=analysis_dispatch_inputs.s3_location,
         analysis_args=analysis_dispatch_inputs.distributed_parameters,
     )
-    processing.output_parameters = output_parameters
+    processing.output_parameters = output_parameters.model_dump()
 
     # --- Write results and metadata ---
     if not dry_run:
