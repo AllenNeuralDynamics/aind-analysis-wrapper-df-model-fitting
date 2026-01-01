@@ -21,7 +21,7 @@ ENV ANALYSIS_BUCKET=aind-analysis-prod-o5171v/dynamic-foraging-model-fitting
 
 RUN pip install -U --no-cache-dir \
     pydantic-settings==2.9.1 \
-    s3fs==0.4.2 \
+    s3fs \
     -e git+https://github.com/AllenNeuralDynamics/analysis-pipeline-utils@8a69491c67b79e5dcfb84084513ecba33b0160ed#egg=analysis-pipeline-utils \
     aind-dynamic-foraging-data-utils~=0.1.41 \
     aind-dynamic-foraging-models[rl]~=0.12.2
