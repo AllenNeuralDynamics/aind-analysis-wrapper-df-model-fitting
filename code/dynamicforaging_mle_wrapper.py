@@ -77,6 +77,9 @@ def mle_wrapper(s3_location, analysis_args) -> DynamicForagingModelFittingOutput
         )
 
     # -- Saving results --
+    # Database record
+    fitting_results = forager.get_fitting_result_dict()
+
     # Save figures
     fig_fitting, _ = forager.plot_fitted_session(if_plot_latent=True)
     fig_fitting.savefig(f"{RESULTS_FOLDER}/fitted_session.png", dpi=500)
@@ -90,9 +93,6 @@ def mle_wrapper(s3_location, analysis_args) -> DynamicForagingModelFittingOutput
     with open(f"{RESULTS_FOLDER}/forager.pkl", "wb") as f:
         pickle.dump(forager, f)
     logger.info(f"Saved forager object to {RESULTS_FOLDER}/forager.pkl")    
-
-    # Database record
-    fitting_results = forager.get_fitting_result_dict()
 
     return DynamicForagingModelFittingOutputs(
         subject_id=subject_id, 
