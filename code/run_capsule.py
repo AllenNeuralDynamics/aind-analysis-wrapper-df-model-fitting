@@ -51,6 +51,12 @@ def run_analysis(
     )
     if docdb_record_exists(processing):
         logger.info("Record already exists, skipping.")
+        
+        # Write an empty file "job_already_exists" to /results so that pipeline does not fail
+        if dry_run is False:
+            empty_output_path = "/results/job_already_exists"
+            with open(empty_output_path, "w") as f:
+                json.dump({}, f)
         return
     
     # --- Run analysis wrapper ---
