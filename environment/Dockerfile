@@ -23,7 +23,7 @@ RUN pip install -U --no-cache-dir \
     pydantic-settings==2.9.1 \
     s3fs \
     -e git+https://github.com/AllenNeuralDynamics/analysis-pipeline-utils@8a69491c67b79e5dcfb84084513ecba33b0160ed#egg=analysis-pipeline-utils \
-    -e git+https://github.com/AllenNeuralDynamics/aind-dynamic-foraging-data-utils.git@7da381c671bbaac4f074c145c92152584d4f64d2#egg=aind-dynamic-foraging-data-utils \
+    -e git+https://github.com/AllenNeuralDynamics/aind-dynamic-foraging-data-utils.git@a31e50197da91699d4a97153501c8e97c95dcfa3#egg=aind-dynamic-foraging-data-utils \
     aind-dynamic-foraging-models[rl]~=0.12.2
 
 COPY postInstall /
