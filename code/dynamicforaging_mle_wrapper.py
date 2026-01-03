@@ -39,7 +39,7 @@ def mle_wrapper(s3_location, analysis_args) -> DynamicForagingModelFittingOutput
     logger.info(f"Found NWB file to process: {nwb_uri}")
     logger.info(f"Processing {nwb_uri}")
 
-    df_trial = nu.create_df_trials(nwb_uri, adjust_time=False, verbose=False)
+    df_trial = nu.create_df_trials(nwb_uri, adjust_time=False, verbose=False, forced_sanity_check=False)
     choice_history = df_trial.animal_response.map({0: 0, 1: 1, 2: np.nan}).values
     reward_history = df_trial.rewarded_historyL | df_trial.rewarded_historyR
     
