@@ -13,7 +13,6 @@ from analysis_pipeline_utils.utils_analysis_wrapper import (
     get_analysis_model_parameters, make_cli_model)
 
 from dynamicforaging_mle_model import (
-    DynamicForagingModelFittingOutputs,
     DynamicForagingModelFittingSpecification,
 )
 
