@@ -14,15 +14,17 @@ COPY git-askpass /
 
 ENV DOCDB_HOST=api.allenneuraldynamics.org
 ENV DOCDB_DATABASE=analysis
-ENV DOCDB_COLLECTION=architecture_example_v2
+ENV DOCDB_COLLECTION=dynamic-foraging-model-fitting
 ENV CODEOCEAN_DOMAIN=codeocean.allenneuraldynamics.org
-ENV CODEOCEAN_EMAIL=YOUR_EMAIL_HERE@alleninstitute.org
-ENV ANALYSIS_BUCKET=aind-scratch-data/analysis/architecture_example_v2
+ENV CODEOCEAN_EMAIL=han.hou@alleninstitute.org
+ENV ANALYSIS_BUCKET=aind-analysis-prod-o5171v/dynamic-foraging-model-fitting
 
 RUN pip install -U --no-cache-dir \
     pydantic-settings==2.9.1 \
-    s3fs==0.4.2 \
-    -e git+https://github.com/AllenNeuralDynamics/analysis-pipeline-utils@8a69491c67b79e5dcfb84084513ecba33b0160ed#egg=analysis-pipeline-utils
+    s3fs \
+    -e git+https://github.com/AllenNeuralDynamics/analysis-pipeline-utils@8a69491c67b79e5dcfb84084513ecba33b0160ed#egg=analysis-pipeline-utils \
+    -e git+https://github.com/AllenNeuralDynamics/aind-dynamic-foraging-data-utils.git@a31e50197da91699d4a97153501c8e97c95dcfa3#egg=aind-dynamic-foraging-data-utils \
+    aind-dynamic-foraging-models[rl]~=0.12.2
 
 COPY postInstall /
 RUN /postInstall

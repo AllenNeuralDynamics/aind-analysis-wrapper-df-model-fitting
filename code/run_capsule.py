@@ -1,6 +1,8 @@
 import json
 import logging
 import os
+from typing import Iterable, List, Optional, Sequence, Union
+import numpy as np
 
 from analysis_pipeline_utils.analysis_dispatch_model import \
     AnalysisDispatchModel
@@ -10,8 +12,11 @@ from analysis_pipeline_utils.metadata import (construct_processing_record,
 from analysis_pipeline_utils.utils_analysis_wrapper import (
     get_analysis_model_parameters, make_cli_model)
 
-from example_analysis_model import (ExampleAnalysisOutputs,
-                                    ExampleAnalysisSpecification)
+from dynamicforaging_mle_model import (
+    DynamicForagingModelFittingSpecification,
+)
+
+from dynamicforaging_mle_wrapper import mle_wrapper
 
 ANALYSIS_BUCKET = os.getenv("ANALYSIS_BUCKET")
 logger = logging.getLogger(__name__)
@@ -39,31 +44,29 @@ def run_analysis(
         The analysis model parameters
 
     """
+    # --- Build processing record ---
     processing = construct_processing_record(
         analysis_dispatch_inputs, **parameters
     )
     if docdb_record_exists(processing):
         logger.info("Record already exists, skipping.")
+        
+        # Write an empty file "job_already_exists" to /results so that pipeline does not fail
+        if dry_run is False:
+            empty_output_path = "/results/job_already_exists"
+            with open(empty_output_path, "w") as f:
+                json.dump({}, f)
         return
-
-    # Execute analysis and write to results folder
-    # using the passed parameters
-    # Example:
-    # Use NWBZarrIO to reads
-    # for location in analysis_dispatch_inputs.file_location:
-    #     with NWBZarrIO(location, 'r') as io:
-    #         nwbfile = io.read()
-    #     run_your_analysis(nwbfile, **parameters)
-    # OR
-    #     subprocess.run(["--param_1": parameters["param_1"]])
-
-    processing.output_parameters = ExampleAnalysisOutputs(
-        isi_violations=["example_violation_1", "example_violation_2"],
-        additional_info=(
-            "This is an example of additional information about the analysis."
-        )[0],
+    
+    # --- Run analysis wrapper ---
+    output_parameters = mle_wrapper(
+        s3_location=analysis_dispatch_inputs.s3_location,
+        analysis_args=analysis_dispatch_inputs.distributed_parameters,
     )
+    # TODO: remove model_dump() once the upstream issue is fixed
+    processing.output_parameters = output_parameters.model_dump()
 
+    # --- Write results and metadata ---
     if not dry_run:
         logger.info("Running analysis and posting results")
         write_results_and_metadata(processing, ANALYSIS_BUCKET)
@@ -77,7 +80,7 @@ if __name__ == "__main__":
         level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
     )
 
-    cli_cls = make_cli_model(ExampleAnalysisSpecification)
+    cli_cls = make_cli_model(DynamicForagingModelFittingSpecification)
     cli_model = cli_cls()
     logger.info(f"Command line args {cli_model.model_dump()}")
     input_model_paths = tuple(cli_model.input_directory.glob("job_dict/*"))
@@ -93,13 +96,15 @@ if __name__ == "__main__":
         merged_parameters = get_analysis_model_parameters(
             analysis_dispatch_inputs,
             cli_model,
-            ExampleAnalysisSpecification,
+            DynamicForagingModelFittingSpecification,
             analysis_parameters_json_path=cli_model.input_directory
             / "analysis_parameters.json",
         )
-        analysis_specification = ExampleAnalysisSpecification.model_validate(
-            merged_parameters
-        ).model_dump()
+        analysis_specification = (
+            DynamicForagingModelFittingSpecification.model_validate(
+                merged_parameters
+            ).model_dump()
+        )
         logger.info(f"Running with analysis specs {analysis_specification}")
         run_analysis(
             analysis_dispatch_inputs,
