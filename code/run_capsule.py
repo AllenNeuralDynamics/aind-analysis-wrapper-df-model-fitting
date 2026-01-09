@@ -2,7 +2,6 @@ import json
 import logging
 import os
 from typing import Iterable, List, Optional, Sequence, Union
-import numpy as np
 
 from analysis_pipeline_utils.analysis_dispatch_model import \
     AnalysisDispatchModel
