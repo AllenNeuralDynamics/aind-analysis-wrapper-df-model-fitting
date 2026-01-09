@@ -1,6 +1,7 @@
 import logging
 import numpy as np
 import pickle
+import json
 
 from dynamicforaging_mle_model import (
     DynamicForagingModelFittingOutputs,
@@ -79,6 +80,21 @@ def mle_wrapper(s3_location, analysis_args) -> DynamicForagingModelFittingOutput
     # -- Saving results --
     # Database record
     fitting_results = forager.get_fitting_result_dict()
+    
+    # Save a copy of original fitting results as a json to s3
+    with open(f"{RESULTS_FOLDER}/original_results_mle_fitting.json", "w") as f:
+        json.dump(fitting_results, f, indent=4)
+    
+    # Remove large entries like latents from docDB records before saving to DB
+    fitting_results.pop("population", None)
+    fitting_results.pop("population_energies", None)
+    fitting_results.pop("fitted_latent_variables", None)
+
+    if "cross_validation" in fitting_results:
+        fitting_results["cross_validation"].pop("fitting_results_each_fold", None)
+
+    fitting_results["fit_settings"].pop("fit_reward_history", None)
+    fitting_results["fit_settings"].pop("fit_choice_history", None)
 
     # Save figures
     fig_fitting, _ = forager.plot_fitted_session(if_plot_latent=True)
