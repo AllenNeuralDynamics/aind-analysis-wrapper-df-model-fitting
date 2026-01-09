@@ -78,30 +78,30 @@ def mle_wrapper(s3_location, analysis_args) -> DynamicForagingModelFittingOutput
         )
 
     # -- Saving results --
-    # Database record
+    # 1. Database record
     fitting_results = forager.get_fitting_result_dict()
     
-    # Save a copy of original fitting results as a json to s3
+    # Save a copy of original fitting results as a json to s3 for result-access-api to retrive
     with open(f"{RESULTS_FOLDER}/original_results_mle_fitting.json", "w") as f:
         json.dump(fitting_results, f, indent=4)
     
     # Remove large entries like latents from docDB records before saving to DB
-    fitting_results.pop("population", None)
-    fitting_results.pop("population_energies", None)
-    fitting_results.pop("fitted_latent_variables", None)
+    fitting_results_simplified = fitting_results.copy()
+    fitting_results_simplified["fit_settings"].pop("fit_reward_history", None)
+    fitting_results_simplified["fit_settings"].pop("fit_choice_history", None)
+    fitting_results_simplified.pop("population", None)
+    fitting_results_simplified.pop("population_energies", None)
+    fitting_results_simplified.pop("fitted_latent_variables", None)
 
-    if "cross_validation" in fitting_results:
-        fitting_results["cross_validation"].pop("fitting_results_each_fold", None)
+    if "cross_validation" in fitting_results_simplified:
+        fitting_results_simplified["cross_validation"].pop("fitting_results_each_fold", None)
 
-    fitting_results["fit_settings"].pop("fit_reward_history", None)
-    fitting_results["fit_settings"].pop("fit_choice_history", None)
-
-    # Save figures
+    # 2. Save figures
     fig_fitting, _ = forager.plot_fitted_session(if_plot_latent=True)
     fig_fitting.savefig(f"{RESULTS_FOLDER}/fitted_session.png", dpi=500)
     logger.info(f"Saved fitting figure to {RESULTS_FOLDER}/fitted_session.png")
     
-    # Save the forager object
+    # 3. Save the raw forager object
     # Have to flatten pydantic models in forager for pickle to work
     forager.ParamModel = forager.ParamModel.model_json_schema()
     forager.ParamFitBoundModel = forager.ParamFitBoundModel.schema_json()
@@ -114,6 +114,6 @@ def mle_wrapper(s3_location, analysis_args) -> DynamicForagingModelFittingOutput
         subject_id=subject_id, 
         session_date=session_date,
         nwb_name=nwb_name,
-        fitting_results=fitting_results,
+        fitting_results=fitting_results_simplified,
         additional_info="success",
     )
