@@ -24,7 +24,7 @@ RUN pip install -U --no-cache-dir \
     s3fs \
     -e git+https://github.com/AllenNeuralDynamics/analysis-pipeline-utils@8a69491c67b79e5dcfb84084513ecba33b0160ed#egg=analysis-pipeline-utils \
     -e git+https://github.com/AllenNeuralDynamics/aind-dynamic-foraging-data-utils.git@a31e50197da91699d4a97153501c8e97c95dcfa3#egg=aind-dynamic-foraging-data-utils \
-    aind-dynamic-foraging-models[rl]~=0.12.2
+    -e git+https://github.com/AllenNeuralDynamics/aind-dynamic-foraging-models.git@9ffc0bca115a826e4ab9f71f3b3fbdaf4d151e83#egg=aind-dynamic-foraging-models[rl]
 
 COPY postInstall /
 RUN /postInstall
