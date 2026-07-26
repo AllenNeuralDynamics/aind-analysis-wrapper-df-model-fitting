@@ -1,9 +1,6 @@
 metadata_version: 1
-name: aind-analysis-wrapper-template
-description: This repository serves as an example template for building your own analysis
-  workflows.
+name: han_df_mle_aind-analysis-wrapper
+description: Wrapper capsule of the AIND Analysis Framework for Maximum Likelihood
+  Estimation model fitting for Dynamic Foraging
 authors:
-- name: Tom Chartrand
-- name: Arjun Sridhar
-- name: Arielle Leon
-- name: Han Hou
+- name: hanhou

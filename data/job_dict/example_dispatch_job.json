@@ -10,7 +10,17 @@
     ],
     "file_location": null,
     "distributed_parameters": {
-            "isi_violations_cutoff": 0.05
+        "agent_class": "ForagerCompareThreshold",
+        "agent_kwargs": {
+            "choice_kernel": "none"
+        },
+        "fit_kwargs": {
+            "DE_kwargs": {
+                "polish": true,
+                "seed": 42
+            },
+            "k_fold_cross_validation": null
+        }
     },
     "group_metadata": null,
     "query": "{\"subject.subject_id\": \"820117\", \"data_description.data_level\": \"derived\", \"data_description.modality.abbreviation\": \"behavior\"}",
@@ -30,9 +40,8 @@
             }
         ],
         "parameters": {
-            "analysis_name": "Unit Filtering",
-            "analysis_tag": "V1",
-            "isi_violations_cutoff": 0.8
+            "analysis_name": "MLE fitting",
+            "analysis_tag": "aind-analysis-framework v0.2"
         },
         "core_dependency": null
     }
