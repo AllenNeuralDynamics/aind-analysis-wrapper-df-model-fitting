@@ -10,7 +10,7 @@ COPY git-ask-pass /
 # run_capsule.py via python-dotenv. Secrets are injected at run time.
 
 RUN pip install -U --no-cache-dir \
-    -e git+https://github.com/hanhou/analysis-pipeline-utils.git@acab6f6e321167f8621e6c03ece16e35550efe5b#egg=analysis-pipeline-utils \
+    -e git+https://github.com/hanhou/analysis-pipeline-utils.git@b7c29dc7f9a6a374fd112b64feb3c1a561fe2315#egg=analysis-pipeline-utils \
     boto3==1.42.30 \
     pydantic-settings==2.9.1 \
     s3fs==2026.1.0 \
