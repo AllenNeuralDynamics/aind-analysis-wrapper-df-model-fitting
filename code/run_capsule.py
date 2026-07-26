@@ -1,112 +1,53 @@
-import json
-import logging
-import os
-from typing import Iterable, List, Optional, Sequence, Union
-
 from analysis_pipeline_utils.analysis_dispatch_model import \
     AnalysisDispatchModel
-from analysis_pipeline_utils.metadata import (construct_processing_record,
-                                              docdb_record_exists,
-                                              write_results_and_metadata)
 from analysis_pipeline_utils.utils_analysis_wrapper import (
-    get_analysis_model_parameters, make_cli_model)
+    run_analysis_jobs)
+from dotenv import load_dotenv
 
 from dynamicforaging_mle_model import (
+    DynamicForagingModelFittingOutputs,
     DynamicForagingModelFittingSpecification,
 )
-
 from dynamicforaging_mle_wrapper import mle_wrapper
 
-ANALYSIS_BUCKET = os.getenv("ANALYSIS_BUCKET")
-logger = logging.getLogger(__name__)
+# TODO: use pydantic settings instead
+load_dotenv("settings.env")
+
+AnalysisInputModel = DynamicForagingModelFittingSpecification
+AnalysisOutputModel = DynamicForagingModelFittingOutputs
 
 
 def run_analysis(
     analysis_dispatch_inputs: AnalysisDispatchModel,
-    dry_run: bool = True,
-    **parameters,
-) -> None:
+    analysis_parameters: AnalysisInputModel,
+) -> dict:
     """
-    Runs the analysis
+    Run MLE model fitting for one dispatched job.
 
     Parameters
     ----------
     analysis_dispatch_inputs: AnalysisDispatchModel
-        The input model with input data
-        from dispatcher
+        The input model with input data from the dispatcher
 
-    dry_run: bool, Default True
-        Dry run of analysis. If true,
-        does not post results
+    analysis_parameters: AnalysisInputModel
+        The validated analysis parameters for this job
 
-    parameters
-        The analysis model parameters
-
+    Returns
+    -------
+    dict
+        Output parameters, validated against AnalysisOutputModel by
+        run_analysis_jobs. Large artifacts (figures, pickled forager,
+        full fitting results) are written to /results by mle_wrapper.
     """
-    # --- Build processing record ---
-    processing = construct_processing_record(
-        analysis_dispatch_inputs, **parameters
-    )
-    if docdb_record_exists(processing):
-        logger.info("Record already exists, skipping.")
-        
-        # Write an empty file "job_already_exists" to /results so that pipeline does not fail
-        if dry_run is False:
-            empty_output_path = "/results/job_already_exists"
-            with open(empty_output_path, "w") as f:
-                json.dump({}, f)
-        return
-    
-    # --- Run analysis wrapper ---
-    output_parameters = mle_wrapper(
+    return mle_wrapper(
         s3_location=analysis_dispatch_inputs.s3_location,
-        analysis_args=analysis_dispatch_inputs.distributed_parameters,
+        analysis_args=analysis_parameters.model_dump(),
     )
-    # TODO: remove model_dump() once the upstream issue is fixed
-    processing.output_parameters = output_parameters.model_dump()
-
-    # --- Write results and metadata ---
-    if not dry_run:
-        logger.info("Running analysis and posting results")
-        write_results_and_metadata(processing, ANALYSIS_BUCKET)
-        logger.info("Successfully wrote record to docdb and s3")
-    else:
-        logger.info("Dry run complete. Results not posted")
 
 
 if __name__ == "__main__":
-    logging.basicConfig(
-        level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+    run_analysis_jobs(
+        analysis_input_model=AnalysisInputModel,
+        analysis_output_model=AnalysisOutputModel,
+        run_function=run_analysis
     )
-
-    cli_cls = make_cli_model(DynamicForagingModelFittingSpecification)
-    cli_model = cli_cls()
-    logger.info(f"Command line args {cli_model.model_dump()}")
-    input_model_paths = tuple(cli_model.input_directory.glob("job_dict/*"))
-    logger.info(
-        f"Found {len(input_model_paths)} input job models to run analysis on."
-    )
-
-    for model_path in input_model_paths:
-        with open(model_path, "r") as f:
-            analysis_dispatch_inputs = AnalysisDispatchModel.model_validate(
-                json.load(f)
-            )
-        merged_parameters = get_analysis_model_parameters(
-            analysis_dispatch_inputs,
-            cli_model,
-            DynamicForagingModelFittingSpecification,
-            analysis_parameters_json_path=cli_model.input_directory
-            / "analysis_parameters.json",
-        )
-        analysis_specification = (
-            DynamicForagingModelFittingSpecification.model_validate(
-                merged_parameters
-            ).model_dump()
-        )
-        logger.info(f"Running with analysis specs {analysis_specification}")
-        run_analysis(
-            analysis_dispatch_inputs,
-            bool(cli_model.dry_run),
-            **analysis_specification,
-        )

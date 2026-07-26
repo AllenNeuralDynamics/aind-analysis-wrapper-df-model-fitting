@@ -1,0 +1,36 @@
+name: Push to CodeOcean and run
+
+env:
+  USERNAME: tom.chartrand%40alleninstitute.org
+  DOMAIN: codeocean.allenneuraldynamics.org
+  SLUG: 9197814
+  CAPSULE_ID: 557c8852-8f8d-4aa2-a9ed-0b31fe86cc7c
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  sync-to-codeocean:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Push changes
+        env:
+          CO_CAPSULE_RW_TOKEN: ${{ secrets.CO_CAPSULE_RW_TOKEN }}
+        run: git push https://${{ env.USERNAME }}:${{ env.CO_CAPSULE_RW_TOKEN }}@${{ env.DOMAIN }}/capsule-${{ env.SLUG }}.git main
+        
+      - name: Run capsule
+        env:
+          CO_CAPSULE_RW_TOKEN: ${{ secrets.CO_CAPSULE_RW_TOKEN }}
+        run: |
+          curl -X POST https://${{ env.DOMAIN }}/api/v1/computations \
+          -u "{{ secrets.CO_CAPSULE_RW_TOKEN}}": \
+          -H "Content-Type: application/json" \
+          --data-raw '{
+            "capsule_id": "${{ env.CAPSULE_ID }}"
+          }'
