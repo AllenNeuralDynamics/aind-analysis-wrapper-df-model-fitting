@@ -17,6 +17,7 @@ AnalysisInputModel = DynamicForagingModelFittingSpecification
 AnalysisOutputModel = DynamicForagingModelFittingOutputs
 
 
+
 def run_analysis(
     analysis_dispatch_inputs: AnalysisDispatchModel,
     analysis_parameters: AnalysisInputModel,
