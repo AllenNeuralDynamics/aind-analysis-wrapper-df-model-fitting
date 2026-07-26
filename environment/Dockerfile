@@ -4,7 +4,7 @@ FROM $REGISTRY_HOST/codeocean/mambaforge3:24.5.0-0-python3.12.4-ubuntu22.04
 
 ARG DEBIAN_FRONTEND=noninteractive
 ARG GIT_ASKPASS
-COPY git-askpass /
+COPY git-ask-pass /
 
 # Non-secret configuration now lives in code/settings.env, loaded by
 # run_capsule.py via python-dotenv. Secrets are injected at run time.
