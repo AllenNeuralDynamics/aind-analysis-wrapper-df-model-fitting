@@ -10,6 +10,24 @@ curl -fL "https://github.com/coder/code-server/releases/download/v$VERSION/code-
 ln -s /.code-server/code-server-$VERSION-linux-amd64/bin/code-server  /usr/bin/code-server
 cd -
 
+# ------------------------------
+# Claude Code CLI
+# ------------------------------
+HOME_DIR="${HOME:-/root}"
+BASHRC="${HOME_DIR}/.bashrc"
+
+echo "Installing Claude Code..."
+curl -fsSL https://claude.ai/install.sh | bash || true
+export PATH="$HOME/.local/bin:$PATH"
+
+# Add to bashrc
+cat >> "$BASHRC" <<'EOF'
+# Claude Code setup
+export PATH="$HOME/.local/bin:$PATH"
+EOF
+
+echo "Claude Code setup complete."
+
 # Check if code-server is installed, then install extensions into specified directory
 if code-server --disable-telemetry --version; then
     EXT_DIR="/.vscode/extensions"

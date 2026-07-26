@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git *)",
+      "Bash(python -c \"import analysis_pipeline_utils, os; print\\(analysis_pipeline_utils.__file__\\); print\\(getattr\\(analysis_pipeline_utils,'__version__','?'\\)\\)\")",
+      "Bash(pip show *)",
+      "Bash(curl -sfL \"https://raw.githubusercontent.com/AllenNeuralDynamics/analysis-pipeline-utils/v0.2.1/src/analysis_pipeline_utils/metadata.py\" -o metadata_v021.py)"
+    ]
+  }
+}
