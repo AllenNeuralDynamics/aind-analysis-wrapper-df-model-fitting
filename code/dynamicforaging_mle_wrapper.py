@@ -3,9 +3,6 @@ import numpy as np
 import pickle
 import json
 
-from dynamicforaging_mle_model import (
-    DynamicForagingModelFittingOutputs,
-)
 from s3_nwb_util import discover_nwb_files_s3
 import aind_dynamic_foraging_data_utils.nwb_utils as nu
 from aind_dynamic_foraging_models.generative_model import ForagerCollection
@@ -13,7 +10,7 @@ from aind_dynamic_foraging_models.generative_model import ForagerCollection
 logger = logging.getLogger(__name__)
 RESULTS_FOLDER = "/results"
 
-def mle_wrapper(s3_location, analysis_args) -> DynamicForagingModelFittingOutputs:
+def mle_wrapper(s3_location, analysis_args) -> dict:
     """
     Wrapper for the Dynamic Foraging MLE analysis.
 
@@ -26,15 +23,16 @@ def mle_wrapper(s3_location, analysis_args) -> DynamicForagingModelFittingOutput
 
     Returns
     -------
-    output_parameters: DynamicForagingModelFittingOutputs
-        The output parameters of the analysis
+    output_parameters: dict
+        The output parameters of the analysis. Validated against
+        DynamicForagingModelFittingOutputs by run_analysis_jobs.
     """
 
     # -- Locate NWB files --
     nwb_uri = discover_nwb_files_s3(s3_location)
     if not nwb_uri:
         logger.warning("No NWB file found, skipping processing.")
-        return
+        return dict(additional_info="skipped. no NWB file found")
 
     # -- Load NWB and extract choice and reward history --
     logger.info(f"Found NWB file to process: {nwb_uri}")
@@ -58,11 +56,11 @@ def mle_wrapper(s3_location, analysis_args) -> DynamicForagingModelFittingOutput
 
     # Skip if len(valid trials) < 50
     if len(choice_history) < 50:
-        return DynamicForagingModelFittingOutputs(
-            subject_id=subject_id, 
+        return dict(
+            subject_id=subject_id,
             session_date=session_date,
             nwb_name=nwb_name,
-            fitting_results={}, 
+            fitting_results={},
             additional_info="skipped. valid trials < 50"
         )
 
@@ -110,8 +108,8 @@ def mle_wrapper(s3_location, analysis_args) -> DynamicForagingModelFittingOutput
         pickle.dump(forager, f)
     logger.info(f"Saved forager object to {RESULTS_FOLDER}/forager.pkl")    
 
-    return DynamicForagingModelFittingOutputs(
-        subject_id=subject_id, 
+    return dict(
+        subject_id=subject_id,
         session_date=session_date,
         nwb_name=nwb_name,
         fitting_results=fitting_results_simplified,

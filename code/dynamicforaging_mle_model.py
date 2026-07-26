@@ -18,7 +18,7 @@ class DynamicForagingModelFittingSpecification(GenericModel):
         description="User-defined name for the analysis"
     )
     analysis_tag: str = Field(
-        ...,
+        default="aind-analysis-framework v0.2",
         description=(
             "User-defined tag to organize results "
             "for querying analysis output",

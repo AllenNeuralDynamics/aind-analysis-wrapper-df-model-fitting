@@ -1,0 +1,6 @@
+metadata_version: 1
+name: han_df_mle_aind-analysis-wrapper
+description: Wrapper capsule of the AIND Analysis Framework for Maximum Likelihood
+  Estimation model fitting for Dynamic Foraging
+authors:
+- name: hanhou
