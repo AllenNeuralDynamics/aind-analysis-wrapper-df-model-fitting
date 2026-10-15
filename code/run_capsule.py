@@ -41,7 +41,7 @@ def run_analysis(
         full fitting results) are written to /results by mle_wrapper.
     """
     return mle_wrapper(
-        s3_location=analysis_dispatch_inputs.s3_location,
+        analysis_dispatch_inputs.file_location[0],
         analysis_args=analysis_parameters.model_dump(),
     )
 

@@ -1,0 +1,42 @@
+{
+	"version": 1,
+	"base_image": "codeocean/mambaforge3:24.5.0-0-python3.12.4-ubuntu22.04",
+	"post_install": true,
+	"options": {
+		"registry_host_arg": true,
+		"git_ask_pass": true,
+		"mount_secrets": true
+	},
+	"installers": {
+		"pip": {
+			"packages": [
+				{
+					"name": "aind-dynamic-foraging-data-utils",
+					"version": "0.1.56"
+				},
+				{
+					"name": "aind-dynamic-foraging-models[rl]",
+					"version": "0.12.3"
+				},
+				{
+					"name": "analysis-pipeline-utils",
+					"version": "0.2.8"
+				},
+				{
+					"name": "boto3",
+					"version": "1.42.30"
+				},
+				{
+					"name": "pydantic-settings",
+					"version": "2.9.1"
+				},
+				{
+					"name": "s3fs",
+					"version": "2026.1.0"
+				}
+			],
+			"options": {},
+			"pre_install_options": {}
+		}
+	}
+}

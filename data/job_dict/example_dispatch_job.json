@@ -1,17 +1,20 @@
 {
-    "asset_name": [
-        "820117_example_asset"
-    ],
     "s3_location": [
-        "s3://codeocean-s3datasetsbucket-1u41qdg42ur9/8351747a-f472-43f9-a53b-cd1f9aa35288"
+        "s3://aind-open-data/864253_2026-07-30_11-43-36_processed-behavior_2026-07-31_04-15-24"
+    ],
+    "asset_name": [
+        "864253_2026-07-30_11-43-36_processed-behavior_2026-07-31_04-15-24"
     ],
     "docdb_record_id": [
-        "dfb3a13e-ed0b-48bc-8ede-d68da8f3fb8b"
+        "8b5aac83-14a8-4ab4-a9c8-74481430810f"
     ],
-    "file_location": null,
+    "file_location": [
+        "s3://aind-open-data/864253_2026-07-30_11-43-36_processed-behavior_2026-07-31_04-15-24/behavior.nwb.zarr"
+    ],
     "distributed_parameters": {
-        "agent_class": "ForagerCompareThreshold",
+        "agent_class": "ForagerLossCounting",
         "agent_kwargs": {
+            "win_stay_lose_switch": true,
             "choice_kernel": "none"
         },
         "fit_kwargs": {
@@ -23,12 +26,13 @@
         }
     },
     "group_metadata": null,
-    "query": "{\"subject.subject_id\": \"820117\", \"data_description.data_level\": \"derived\", \"data_description.modality.abbreviation\": \"behavior\"}",
+    "query": "{\"acquisition.acquisition_type\": \"AindDynamicForaging\", \"data_description.data_level\": \"derived\", \"acquisition.acquisition_start_time\": {\"$gt\": \"2026-07-01\"}}",
     "analysis_code": {
         "object_type": "Code",
-        "url": "https://codeocean.allenneuraldynamics.org/capsule/4544861",
-        "name": null,
-        "version": "ad6db0dca9e5fffc1544686c01f39aac1e46c841",
+        "url": "https://codeocean.allenneuraldynamics.org/capsule/4788275",
+        "name": "han_df_mle_aind-analysis-wrapper-v2",
+        "version": "3.0",
+        "commit_hash": null,
         "container": null,
         "run_script": "code/run",
         "language": null,
@@ -36,12 +40,29 @@
         "input_data": [
             {
                 "object_type": "Data asset",
-                "url": "s3://codeocean-s3datasetsbucket-1u41qdg42ur9/8351747a-f472-43f9-a53b-cd1f9aa35288"
+                "name": "845023_2026-07-13_15-58-24_processed-behavior_2026-07-15_10-14-06",
+                "url": "s3://aind-open-data/845023_2026-07-13_15-58-24_processed-behavior_2026-07-15_10-14-06"
             }
         ],
         "parameters": {
+            "dry run": "1",
             "analysis_name": "MLE fitting",
-            "analysis_tag": "aind-analysis-framework v0.2"
+            "analysis_tag": "aind-analysis-framework v0.2",
+            "file_location": [
+                "s3://aind-open-data/845023_2026-07-13_15-58-24_processed-behavior_2026-07-15_10-14-06/behavior.nwb.zarr"
+            ],
+            "agent_class": "ForagerLossCounting",
+            "agent_kwargs": {
+                "win_stay_lose_switch": true,
+                "choice_kernel": "none"
+            },
+            "fit_kwargs": {
+                "DE_kwargs": {
+                    "polish": true,
+                    "seed": 42
+                },
+                "k_fold_cross_validation": null
+            }
         },
         "core_dependency": null
     }
