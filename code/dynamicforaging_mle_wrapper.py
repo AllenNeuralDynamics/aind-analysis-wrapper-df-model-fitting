@@ -49,6 +49,7 @@ def mle_wrapper(nwb_uri, analysis_args) -> dict:
 
     # Skip if len(valid trials) < 50
     if len(choice_history) < 50:
+        logger.info("Skipping processing; valid trials < 50")
         return dict(
             subject_id=subject_id,
             session_date=session_date,

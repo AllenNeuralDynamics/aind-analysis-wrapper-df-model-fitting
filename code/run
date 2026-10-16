@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
 set -ex
-exec > >(tee -a /results/capsule_run.log) 2>&1
+
 python -u run_capsule.py "$@"
 
