@@ -40,7 +40,7 @@ def mle_wrapper(nwb_uri, analysis_args) -> dict:
     nwb = nu.load_nwb_from_filename(nwb_uri)
     subject_id = nwb.subject.subject_id
     session_date = nwb.session_start_time.strftime("%Y-%m-%d")
-    nwb_name = nwb_uri.split("/")[-1]
+    nwb_name = nwb.session_id
 
     # Remove ignored trials
     ignored = np.isnan(choice_history)
